@@ -8,6 +8,7 @@ import '../services/export_service.dart';
 import '../models/application.dart';
 import '../models/task_item.dart';
 
+import '../theme/theme_controller.dart';
 import 'today/today_screen.dart';
 import 'apps/applications_screen.dart';
 import 'analytics/analytics_screen.dart';
@@ -46,13 +47,17 @@ class _AppShellState extends State<AppShell> {
           actions: [
             PopupMenuButton<String>(
               onSelected: (v) async {
-                if (v == 'logout') {
+                if (v == 'theme') {
+                  await context.read<ThemeController>().toggleLightDark();
+                } else if (v == 'logout') {
                   await widget.auth.signOut();
                 } else if (v == 'export') {
                   await _exportAndShare(context, uid);
                 }
               },
+
               itemBuilder: (_) => const [
+                PopupMenuItem(value: 'theme', child: Text('Toggle Day/Night')),
                 PopupMenuItem(value: 'export', child: Text('Export CSV')),
                 PopupMenuItem(value: 'logout', child: Text('Logout')),
               ],

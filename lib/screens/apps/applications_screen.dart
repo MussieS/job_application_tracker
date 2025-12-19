@@ -49,16 +49,66 @@ class _AppsBody extends StatelessWidget {
     final vm = context.watch<ApplicationsViewModel>();
 
     return StreamBuilder<List<Application>>(
+
       stream: vm.watchApps(uid),
       builder: (context, snap) {
         final all = snap.data ?? const [];
         final apps = vm.applyFilters(all);
 
+        if (snap.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Firestore error: ${snap.error}')),
+          );
+        }
+
+        debugPrint('Apps stream: docs=${(snap.data ?? []).length}');
+
         return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => _addOrEdit(context, vm),
+            icon: const Icon(Icons.add),
+            label: const Text('Add app'),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.work_outline, size: 28),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Your Pipeline',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Track status, follow-ups, and momentum in one place.',
+                                style: TextStyle(color: Theme.of(context).hintColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: vm.kanbanMode ? 'List view' : 'Kanban view',
+                          icon: Icon(
+                            vm.kanbanMode ? Icons.view_list_outlined : Icons.view_kanban_outlined,
+                          ),
+                          onPressed: vm.toggleMode,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
                 TextField(
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.search),
@@ -77,8 +127,16 @@ class _AppsBody extends StatelessWidget {
                       : apps.isEmpty
                       ? _EmptyApps(onAdd: () => _addOrEdit(context, vm))
                       : vm.kanbanMode
-                      ? _Kanban(apps: apps, onEdit: (a) => _addOrEdit(context, vm, existing: a), onDelete: vm.deleteApp)
-                      : _List(apps: apps, onEdit: (a) => _addOrEdit(context, vm, existing: a), onDelete: vm.deleteApp),
+                      ? _Kanban(
+                    apps: apps,
+                    onEdit: (a) => _addOrEdit(context, vm, existing: a),
+                    onDelete: vm.deleteApp,
+                  )
+                      : _List(
+                    apps: apps,
+                    onEdit: (a) => _addOrEdit(context, vm, existing: a),
+                    onDelete: vm.deleteApp,
+                  ),
                 ),
               ],
             ),

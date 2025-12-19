@@ -231,14 +231,12 @@ class _TodayBody extends StatelessWidget {
         final title = DateFormat('EEEE, MMM d').format(now);
 
         if (snap.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            appBar: AppBar(title: Text(title)),
-            body: const Center(child: CircularProgressIndicator()),
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           );
         }
         if (snap.hasError) {
           return Scaffold(
-            appBar: AppBar(title: Text(title)),
             body: Center(child: Text('Error: ${snap.error}')),
           );
         }
@@ -247,9 +245,43 @@ class _TodayBody extends StatelessWidget {
         final grouped = groupTasks(tasks, now);
 
         return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () => _showAddTaskDialog(context, vm),
+            icon: const Icon(Icons.add),
+            label: const Text('Add task'),
+          ),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.today_outlined, size: 28),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Today",
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Overdue and due-today tasks—tap + to add something.',
+                              style: TextStyle(color: Theme.of(context).hintColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
               if (tasks.isEmpty) ...[
                 const SizedBox(height: 40),
                 const Icon(Icons.check_circle_outline, size: 56),
@@ -297,9 +329,6 @@ class _TodayBody extends StatelessWidget {
                   ),
                 ),
               ],
-
-              // NOTE: "Later" won't show in the Today stream because we query <= endOfToday.
-              // We keep the section for future expansion when we add a "Upcoming" query.
             ],
           ),
         );
