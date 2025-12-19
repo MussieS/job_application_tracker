@@ -7,6 +7,7 @@ import '../../utils/enums.dart';
 import '../../viewmodels/applications_viewmodel.dart';
 import '../../widgets/application_card.dart';
 import 'add_edit_application_screen.dart';
+import 'application_detail_screen.dart';
 
 class ApplicationsScreen extends StatelessWidget {
   const ApplicationsScreen({super.key, required this.uid});
@@ -54,21 +55,6 @@ class _AppsBody extends StatelessWidget {
         final apps = vm.applyFilters(all);
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Applications'),
-            actions: [
-              IconButton(
-                tooltip: vm.kanbanMode ? 'List view' : 'Kanban view',
-                icon: Icon(vm.kanbanMode ? Icons.view_list_outlined : Icons.view_kanban_outlined),
-                onPressed: vm.toggleMode,
-              ),
-              IconButton(
-                tooltip: 'Add application',
-                icon: const Icon(Icons.add),
-                onPressed: () => _addOrEdit(context, vm),
-              ),
-            ],
-          ),
           body: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -161,7 +147,11 @@ class _List extends StatelessWidget {
         final a = apps[i];
         return ApplicationCard(
           app: a,
-          onTap: () => onEdit(a),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => ApplicationDetailScreen(app: a)),
+            );
+          },
           onDelete: () async {
             final ok = await _confirmDelete(context);
             if (ok) await onDelete(a.id);

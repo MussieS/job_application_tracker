@@ -247,16 +247,6 @@ class _TodayBody extends StatelessWidget {
         final grouped = groupTasks(tasks, now);
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-            actions: [
-              IconButton(
-                tooltip: 'Add task',
-                icon: const Icon(Icons.add),
-                onPressed: () => _showAddTaskDialog(context, vm),
-              )
-            ],
-          ),
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
